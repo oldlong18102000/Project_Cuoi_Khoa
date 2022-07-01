@@ -1,0 +1,99 @@
+body {
+    background-color: #1B1B38;
+}
+
+.table>thead>tr,
+.table>tbody>tr {
+    background-color: #323259;
+    color: #fff;
+    /* Choose your own color here */
+}
+
+.borderchonobottom {
+    border-bottom: 1px solid black;
+}
+
+.table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 0px !important;
+}
+
+
+.padding-left-293 {
+    padding-left: 293px;
+    background-color: #1B1B38;
+    color: #fff;
+}
+
+.title {
+    font-size: 2rem;
+    font-family: Open Sans, sans-serif;
+    font-weight: 400;
+    line-height: 2.5rem;
+}
+
+.link {
+    color: #007BFF !important;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.pagination {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    gap: 5px;
+    background-color: #323259;
+    height: auto;
+    padding: 30px;
+}
+
+.pagination a {
+    text-decoration: none;
+    color: white;
+    border: 1px solid black;
+}
+
+.pagination .page-num {
+    padding: 8px 15px;
+    cursor: pointer;
+    background-repeat: 3px;
+    font-weight: 400;
+}
+
+.pagination li a {
+    padding: 8px 15px;
+    cursor: pointer;
+    background-repeat: 3px;
+    font-weight: 400;
+}
+
+.pagination .page-num:hover {
+    background: #B18AFF;
+    color: white;
+}
+
+.pagination .active {
+    background: #B18AFF;
+    color: white;
+}
+
+.pagination-bar {
+    display: flex;
+    align-items: center;
+}
+
+.pagination-bar .pagiSelect {
+    color: white;
+    background: #B18AFF;
+    margin: 0 10px;
+    border: 1px;
+    padding: 3px 10px;
+}

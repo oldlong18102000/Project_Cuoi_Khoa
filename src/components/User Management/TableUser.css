@@ -1,0 +1,65 @@
+body {
+    background-color: #1B1B38;
+}
+
+.table>thead>tr,
+.table>tbody>tr {
+    background-color: #323259;
+    color: #fff;
+    /* Choose your own color here */
+}
+
+.borderchonobottom {
+    border-bottom: 1px solid black;
+}
+
+.table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    background: #323259;
+}
+
+
+.padding-left-293 {
+    padding-left: 293px;
+    background-color: #1B1B38;
+    color: #fff;
+}
+
+.title {
+    font-size: 2rem;
+    font-family: Open Sans, sans-serif;
+    font-weight: 400;
+    line-height: 2.5rem;
+}
+
+.link {
+    color: #007BFF !important;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.pagination-bar {
+    background: #323259;
+    padding: 20px;
+}
+
+.btn-paginate {
+    color: white !important;
+    background: inherit;
+    border: 1px solid black !important;
+    border-radius: 0% !important;
+}
+
+.btn-paginate .clicked {
+    background: #B18AFF;
+}
+
+.btn-paginate:hover {
+    background: #B18AFF;
+}
