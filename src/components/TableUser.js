@@ -8,24 +8,14 @@ import { todosRemainingSelector } from '../redux/selector';
 
 const TableUser = (props) => {
 
-    //const [listUsers, setListUsers] = useState();
     const dispatch = useDispatch()
-    // const fetchAllUser = async () => {
-    //     const res = await axios.get("http://localhost:8080/users/all");
-    //     const data = res && res.data ? res.data : []
-    //     setListUsers(data)
-    // }
 
-    useEffect(() =>
-    // fetchAllUser();
-    { dispatch(fetchAllUsers()) }, [])
+    useEffect(() => { dispatch(fetchAllUsers()) }, [])
 
-    //const handleEdit = () => { }
     const handleDelete = (id) => {
         console.log('ng dung bi xoa la', id)
         dispatch(deleteUser(id));
     }
-    //const listUsers = useSelector((state) => state.user.listUsers)
     const listUsers = useSelector(todosRemainingSelector);
 
     return (

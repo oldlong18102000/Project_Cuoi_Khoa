@@ -5,6 +5,10 @@ export const searchTextSelector = (state) => state.filters.invoice;
 export const filterClientSelector = (state) => state.filters.client;
 export const filterStatusSelector = (state) => state.filters.status;
 export const todoListSelector = (state) => state.user.listUsers;
+export const categoriesListSelector = (state) => state.categories.listCategories;
+export const brandsListSelector = (state) => state.brands.listBrands;
+export const countriesListSelector = (state) => state.countries.listCountries;
+
 
 export const todosRemainingSelector = (state) => {
     const todosRemaining = state.user.listUsers.filter((todo) => {

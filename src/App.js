@@ -14,6 +14,7 @@ import {
 import Home from './components/Home';
 import UserList from './components/User Management/TableUser';
 import ProductList from './components/Product Management/TableProduct';
+import NewProduct from './components/Product Management/NewProduct';
 
 
 function App(props) {
@@ -25,6 +26,9 @@ function App(props) {
       <Switch>
         <Route path="/products/manage-product">
           <ProductList />
+        </Route>
+        <Route path="/products/new-product">
+          <NewProduct />
         </Route>
         <Route path="/user/manage-user">
           <UserList />

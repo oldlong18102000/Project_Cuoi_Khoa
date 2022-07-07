@@ -83,8 +83,8 @@ const UserList = (props) => {
                                     }
                                 </td>
                                 <td><a className='link'>{item.wishlist}</a></td>
-                                <td>{item.created != 0 ? new Date(+item.created * 1000).toLocaleString("en-VN", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "numeric", hour12: true }) : 'Never'}</td>
-                                <td>{item.created != 0 ? new Date(+item.last_login * 1000).toLocaleString("en-VN", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "numeric", hour12: true }) : 'Never'}</td>
+                                <td>{item.created !== 0 ? new Date(+item.created * 1000).toLocaleString("en-VN", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "numeric", hour12: true }) : 'Never'}</td>
+                                <td>{item.created !== 0 ? new Date(+item.last_login * 1000).toLocaleString("en-VN", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "numeric", hour12: true }) : 'Never'}</td>
                                 <td>
                                     <button className='btn btn-danger' onClick={() => handleDelete(item.id)}>Delete</button>
                                 </td>
