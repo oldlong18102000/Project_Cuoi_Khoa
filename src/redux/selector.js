@@ -1,20 +1,16 @@
 // import { createSelector } from 'reselect';
 // import Select from "react-select";
 
-export const searchTextSelector = (state) => state.filters.invoice;
-export const filterClientSelector = (state) => state.filters.client;
-export const filterStatusSelector = (state) => state.filters.status;
 export const todoListSelector = (state) => state.user.listUsers;
 export const categoriesListSelector = (state) => state.categories.listCategories;
 export const brandsListSelector = (state) => state.brands.listBrands;
 export const countriesListSelector = (state) => state.countries.listCountries;
+export const vendorsListSelector = (state) => state.vendors.listVendors;
 
 
-export const todosRemainingSelector = (state) => {
-    const todosRemaining = state.user.listUsers.filter((todo) => {
-        return todo.status.includes(state.filters.status)
-            && todo.client.includes(state.filters.client)
-            && todo.invoice.includes(state.filters.invoice)
+export const vendorsRemainingSelector = (state) => {
+    const todosRemaining = state.vendors.listVendors.filter((todo) => {
+        return todo.name.includes(state.filters.vendor)
     });
     return todosRemaining;
 }

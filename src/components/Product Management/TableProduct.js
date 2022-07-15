@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllCatrgories } from '../../action/actions';
+import { fetchAllBrands, fetchAllCatrgories, fetchAllCountries, fetchAllVendors, searchVendorChange } from '../../action/actions';
 import axios from "axios";
 import './TableProduct.css'
 import ReactPaginate from 'react-paginate';
-import { categoriesListSelector } from '../../redux/selector';
+import { categoriesListSelector, vendorsRemainingSelector } from '../../redux/selector';
 import ModalConfirm from '../ModalConfirm';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const initData = {
     Search: "",
@@ -20,9 +20,10 @@ const ProductList = (props) => {
     const [Search, setSearch] = useState("");
     const [Category, SetCategory] = useState("0");
     const [StockStatus, setStockStatus] = useState("all");
-    const [byConditions, setByConditions] = useState("");
+    //const [byConditions, setByConditions] = useState("");
     const [Availability, setAvailability] = useState("all");
-    const [byVendor, setByVendor] = useState("");
+    const [byVendor, setByVendor] = useState({ name: "", id: "", hide: true });
+    //const [hideVendor, setHideVendor] = useState(null);
     const [state, setState] = useState(initData);
 
     const [CheckedAll, setCheckedAll] = useState(true);
@@ -38,8 +39,20 @@ const ProductList = (props) => {
 
     const dispatch = useDispatch()
 
-    useEffect(() => { dispatch(fetchAllCatrgories()) }, [])
+    useEffect(() => {
+        dispatch(fetchAllVendors())
+        dispatch(fetchAllCatrgories())
+        dispatch(fetchAllBrands())
+        dispatch(fetchAllCountries())
+    }, [])
     const listCategories = useSelector(categoriesListSelector);
+    const listVendors = useSelector(vendorsRemainingSelector);
+
+    // const handleSearchVendorChange = (e) => {
+    //     setByVendor(byVendor => ({ ...byVendor, 'name': e }));
+    //     console.log(byVendor)
+    //     dispatch(searchVendorChange(e))
+    // }
 
     const fetchProductData = async () => {
         const res = await axios.post("https://api.gearfocus.div4.pgtest.co/api/products/list",
@@ -50,7 +63,7 @@ const ProductList = (props) => {
         "category":"${state.Category}",
         "stock_status":"${state.StockStatus}",
         "availability":"${state.Availability}",
-        "vendor":"${byVendor}",
+        "vendor":"",
         "sort":"name",
         "order_by":"ASC",
         "search_type":"${state.byConditions}"}`,
@@ -63,13 +76,12 @@ const ProductList = (props) => {
         setTotalItem(+res.data.recordsFiltered)
         const pc = +res.data.recordsFiltered / itemsPerPage
         setPageCount(Math.round(pc))
-        setPage(1)
     }
 
     //Call API
     useEffect(() => {
         fetchProductData();
-    }, [Page, itemsPerPage, state, byVendor])//phải truyền vào id của vendor
+    }, [Page, itemsPerPage, state])//phải truyền vào id của vendor
 
     const handlePageClick = (event) => {
         setPage(event.selected + 1);
@@ -116,7 +128,7 @@ const ProductList = (props) => {
         const N = document.getElementById("by-title").checked;
         const S = document.getElementById("by-sku").checked;
         const F = document.getElementById("by-descr").checked;
-        const searchvendor = document.getElementById("search-vendor").value;
+        //const searchvendor = document.getElementById("search-vendor").value;
 
         let X = ''
         N ? X = X.concat('name,') : X = X.concat('');
@@ -196,7 +208,17 @@ const ProductList = (props) => {
                     </li>
                     <li className="vendor-condition d-flex">
                         <label style={{ marginRight: '10px' }}>Vendor</label>
-                        <input type="text" id="search-vendor" autoComplete='off' maxLength={255}></input>
+                        <div>
+                            <input type="text" id="search-vendor" autoComplete='off'
+                                value={byVendor.name}
+                                onChange={e => { setByVendor({ ...byVendor, 'name': e.target.value, hide: false }); dispatch(searchVendorChange(e.target.value)) }}
+                                onBlur={e => { setByVendor({ ...byVendor, hide: true }) }}></input>
+                            <ul className="search-vendor-value" style={{ ...byVendor.hide ? { display: 'none' } : { display: '' } }}>
+                                {listVendors && listVendors.length > 0 && listVendors.map((item, index) => {
+                                    return (<li key={`vendor-${index}`} value={item.id}><a onClick={() => setByVendor(byVendor => ({ ...byVendor, 'id': item.id, 'name': item.name, hide: true }))}>{item.name}</a></li>)
+                                })}
+                            </ul>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -223,7 +245,7 @@ const ProductList = (props) => {
                             <tr key={`products-${index}`} id={`products-${item.id}`}>
                                 <th><input type="checkbox" name='name[]' id='check_all'></input></th>
                                 <td>{item.sku}</td>
-                                <td><a className='link' title={`${item.name}`} href='#'>{item.name}</a></td>
+                                <td><Link to={`product-detail/${item.id}`}><a className='link' title={`${item.name}`} href='#'>{item.name}</a></Link></td>
                                 <td>{item.category}</td>
                                 <td>${item.price.slice(0, item.price.indexOf('.', [-1]) + 3)}</td>
                                 <td>{item.amount}</td>
@@ -246,7 +268,6 @@ const ProductList = (props) => {
                                             }
                                             setDataDeleteLength(dataProductDelete.length);
                                             console.log(item.id);
-                                            // dataProductDelete = dataProductDelete.split(`${item.id},`).join('');
                                         }
                                     }}>
                                         <i className="fa-solid fa-trash"></i>

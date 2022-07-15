@@ -13,6 +13,9 @@ import {
     FETCH_COUNTRY_REQUEST,
     FETCH_COUNTRY_SUCCESS,
     FETCH_COUNTRY_ERROR,
+    FETCH_VENDOR_REQUEST,
+    FETCH_VENDOR_SUCCESS,
+    FETCH_VENDOR_ERROR,
 } from "./types";
 import axios from "axios";
 
@@ -176,6 +179,53 @@ export const fetchCountryError = () => {
         type: FETCH_COUNTRY_ERROR
     };
 }
+
+// API Countries
+export const fetchAllVendors = () => {
+    return async (dispatch, getState) => {
+        dispatch(fetchVendorRequest());
+        try {
+            const res = await axios.get("https://api.gearfocus.div4.pgtest.co/apiAdmin/vendors/list",
+                {
+                    headers: {
+                        Authorization: '9.5a8eefea2a1299f87e8e1a74994827840debf897a605c603444091fa519da275',
+                    }
+                }
+            );
+            const data = res.data && res.data.data ? res.data.data : []
+            dispatch(fetchVendorSucess(data));
+        } catch (error) {
+            console.log(error);
+            dispatch(fetchVendorError(error));
+        }
+    };
+};
+
+export const fetchVendorRequest = () => {
+    return {
+        type: FETCH_VENDOR_REQUEST,
+    };
+};
+
+export const fetchVendorSucess = (data) => {
+    return {
+        type: FETCH_VENDOR_SUCCESS,
+        dataVendors: data
+    };
+};
+
+export const fetchVendorError = () => {
+    return {
+        type: FETCH_VENDOR_ERROR
+    };
+}
+
+export const searchVendorChange = (vendor) => {
+    return {
+        type: 'searchVendorChange',
+        payload: vendor,
+    };
+};
 
 // Table Product
 export const fetchAllProducts = () => {

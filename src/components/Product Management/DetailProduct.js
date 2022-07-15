@@ -2,22 +2,25 @@ import { Link, NavLink } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import moment from "moment";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllBrands, fetchAllCatrgories, fetchAllCountries } from '../../action/actions';
+import { fetchAllBrands, fetchAllCatrgories, fetchAllCountries, fetchAllVendors } from '../../action/actions';
 import axios from "axios";
 import styles from './NewProduct.module.css';
 import { Select, DatePicker, Tag } from 'antd';
 import 'antd/dist/antd.css';
-import { categoriesListSelector, brandsListSelector, countriesListSelector } from '../../redux/selector';
+import { categoriesListSelector, brandsListSelector, countriesListSelector, vendorsListSelector } from '../../redux/selector';
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import AsyncSelect from 'react-select/async'
 import ReactMultiSelectCheckboxes from 'react-multiselect-checkboxes';
 import draftToHtml from 'draftjs-to-html';
-import { convertToRaw, EditorState } from 'draft-js';
+import { EditorState, convertToRaw, ContentState, convertFromHTML } from "draft-js"
 import ImageUpLoad from '../ImageUpLoad';
 
 
-const NewProduct = (props) => {
+const DetailProduct = (props) => {
+    let currentUrl = window.location.pathname
+    let result = currentUrl.lastIndexOf("/");
+    let idProduct = currentUrl.slice(result + 1, currentUrl.length)
     const Today = new Date().toLocaleString("fr-CA", { month: "numeric", day: "numeric", year: "numeric" })
     const initSku = new Date().getTime()
     const [inputValue, SetInputValue] = useState('');
@@ -29,13 +32,15 @@ const NewProduct = (props) => {
     const [SKU, setSKU] = useState(initSku);
     const [Ima, setIma] = useState([]);
     const [Category, SetCategory] = useState([]);
+    const [CategoryName, SetCategoryName] = useState([]);
     const [Description, setDescription] = useState("");
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
+
 
     const [Avai4Sale, setAvai4Sale] = useState(1);
     const [Memberships, setMemberships] = useState([]);
     const [TaxExempt, setTaxExempt] = useState(0);
-    const [ArrivalDate, setArrivalDate] = useState(Today);
+    const [ArrivalDate, setArrivalDate] = useState("165000000");
     const [Shipping, setShipping] = useState([{ id: 1, price: "0.00" }]);
 
     const [Country, SetCountry] = useState("");
@@ -51,21 +56,24 @@ const NewProduct = (props) => {
     const [FacebookMarketingEnabled, SetFacebookMarketingEnabled] = useState(0);
     const [GoogleFeedEnabled, SetGoogleFeedEnabled] = useState(0);
 
-
-    //imagesOrder
-    //deleted_images
     const [Quantity, SetQuantity] = useState(0);
     const dataDeleteLength = 1;
 
     const dispatch = useDispatch()
-    useEffect(() => { dispatch(fetchAllCatrgories()) }, [])
-    useEffect(() => { dispatch(fetchAllBrands()) }, [])
-    useEffect(() => { dispatch(fetchAllCountries()) }, [])
 
+    // useEffect(() => {
+    //     dispatch(fetchAllVendors())
+    //     dispatch(fetchAllCatrgories())
+    //     dispatch(fetchAllBrands())
+    //     dispatch(fetchAllCountries())
+    // }, [])
+
+
+    const listVendors = useSelector(vendorsListSelector);
     const listCategories = useSelector(categoriesListSelector);
     const listBrands = useSelector(brandsListSelector);
     const listCountries = useSelector(countriesListSelector);
-
+    console.log('listVendors1', listVendors)
 
 
     const loadOptions = async (inputText, callback) => {
@@ -83,86 +91,55 @@ const NewProduct = (props) => {
         callback(data.map(i => ({ id: i.id, name: i.name })));
     }
 
-    const createProductData = async () => {
+    const getProductDeltailData = async () => {
         //const res = await axios.post
 
-        let ImaNameList = Ima.map(a => a.name)
-        console.log("ImaNameList", ImaNameList)
-
-        console.log(`{"vendor_id":"${Vendor}","name":"${ProductTitle}","brand_id":"${Brand}","condition_id":"${Condition}","categories":[${Category},"description":"${Description.slice(0, -1)}","enabled":${Avai4Sale},"memberships":${Array.from(new Set(Memberships))},"shipping_to_zones":[${JSON.stringify(Shipping)}],"tax_exempt":${TaxExempt},"price":"${Price}","sale_price_type":"$","arrival_date":"${ArrivalDate}","inventory_tracking":0,"quantity":"${Quantity}","sku":"${SKU}","participate_sale":${ParticipateSale},"sale_price":"${SalePrice}","og_tags_type":"${OgTtagsType}","og_tags":"${OgTags}","meta_desc_type":"${MetaDescType}","meta_description":"${MetaDescription}","meta_keywords":"${MetaKeywords}","product_page_title":"${ProductPageTitle}","facebook_marketing_enabled":${FacebookMarketingEnabled},"google_feed_enabled":${GoogleFeedEnabled}}`)
-        const form = new FormData();
-        form.append('productDetail', `{"vendor_id":"${Vendor}","name":"${ProductTitle}","brand_id":"${Brand}","condition_id":"${Condition}","categories":[${Category}],"description":"${Description.slice(0, -1)}","enabled":${Avai4Sale},"memberships":${Array.from(new Set(Memberships))},"shipping_to_zones":${JSON.stringify(Shipping)},"tax_exempt":${TaxExempt},"price":"${Price}","sale_price_type":"$","arrival_date":"${ArrivalDate}","inventory_tracking":0,"quantity":"${Quantity}","sku":"${SKU}","participate_sale":${ParticipateSale},"sale_price":"${SalePrice}","og_tags_type":"${OgTtagsType}","og_tags":"${OgTags}","meta_desc_type":"${MetaDescType}","meta_description":"${MetaDescription}","meta_keywords":"${MetaKeywords}","product_page_title":"${ProductPageTitle}","facebook_marketing_enabled":${FacebookMarketingEnabled},"google_feed_enabled":${GoogleFeedEnabled},"imagesOrder":[],"deleted_images":[]}`)
-
-        const res = await axios.post('https://api.gearfocus.div4.pgtest.co/apiAdmin/products/create', form,
+        const res = await axios.post('https://api.gearfocus.div4.pgtest.co/apiAdmin/products/detail',
+            `{"id":"${idProduct}"}`
+            ,
             {
                 headers: {
                     Authorization: '9.5a8eefea2a1299f87e8e1a74994827840debf897a605c603444091fa519da275',
                 }
             }
         )
+        const datas = res.data.data
+        console.log(datas)
+        // Basic
+        setVendor(datas.vendor_id)
+        let filtered = listVendors.filter(item => item.id === datas.vendor_id);
+        console.log('listVendors2', listVendors)
 
-        // Handle result…
-        //console.log(res.data?.success);
-
-        if (res.data.success === true) {
-            let X = Ima[0]
-            //Ima && Ima.length > 0 && X.map((item, index) => 
-            for (let i = 0; i < X.length; i++) {
-                const formIma = new FormData();
-
-                formIma.append('productId', res.data.data)
-                formIma.append('order', i)
-                console.log('index', i)
-                formIma.append('images[]', X[i])
-                axios.post('https://api.gearfocus.div4.pgtest.co/api/products/upload-image', formIma,
-                    {
-                        headers: {
-                            Authorization: '9.5a8eefea2a1299f87e8e1a74994827840debf897a605c603444091fa519da275',
-                        }
-                    }
-                )
-            }
-            //)
-        }
-
-        // const res = await axios.post("https://api.gearfocus.div4.pgtest.co/apiAdmin/products/create",
-        //     `
-        //     productDetail: {
-        //         "vendor_id":"${Vendor}",
-        //         "name":"${ProductTitle}",
-        //         "brand_id":"${Brand}",
-        //         "condition_id":"${Condition}",
-        //         "categories":[${Category}],
-        //         "description":"${Description}",
-        //         "enabled":${Avai4Sale},
-        //         "memberships":${Memberships},
-        //         "shipping_to_zones":${Shipping},
-        //         "tax_exempt":${TaxExempt},
-        //         "price":"${Price}",
-        //         "sale_price_type":"$",
-        //         "arrival_date":${ArrivalDate},
-        //         "inventory_tracking":0,"quantity":"${Quantity}",
-        //         "sku":"${SKU}",
-        //         "participate_sale":${ParticipateSale},
-        //         "sale_price":"${SalePrice}",
-        //         "og_tags_type":"${OgTtagsType}",
-        //         "og_tags":"${OgTags}",
-        //         "meta_desc_type":${MetaDescType},
-        //         "meta_description":${MetaDescription},
-        //         "meta_keywords":${MetaKeywords},
-        //         "product_page_title":${ProductPageTitle},
-        //         "facebook_marketing_enabled":${FacebookMarketingEnabled},
-        //         "google_feed_enabled":${GoogleFeedEnabled},
-        //         "imagesOrder":[],
-        //         "deleted_images":[]
-        //     }
-        //     `,
-        //     {
-        //         headers: {
-        //             Authorization: '9.5a8eefea2a1299f87e8e1a74994827840debf897a605c603444091fa519da275',
-        //         }
-        //     })
+        console.log('filtered', listVendors.filter(item => item.id === datas.vendor_id))
+        SetInputValue(filtered.map(item => item.name))
+        setProductTitle(datas.name)
+        setCondition(datas.condition_id)
+        SetBrand(datas.brand_id)
+        setEditorState(EditorState.createWithContent(ContentState.createFromBlockArray(convertFromHTML(datas.description))));
+        setSKU(datas.sku)
+        SetCategory(datas.categories)
+        setArrivalDate(datas.arrival_date)
+        setAvai4Sale(datas.enabled)
+        //Prices & Inventory
+        SetPrice(datas.price)
+        SetQuantity(datas.quantity)
+        //Shipping
+        setShipping(datas.shipping)
+        //Marketing
+        setOgTtagsType(datas.og_tags_type)
+        SetOgTags(datas.og_tags)
+        SetMetaDescType(datas.meta_desc_type)
+        SetMetaDescription(datas.meta_description)
+        SetMetaKeywords(datas.meta_keywords)
+        SetProductPageTitle(datas.product_page_title)
+        SetFacebookMarketingEnabled(datas.facebook_marketing_enabled)
+        SetGoogleFeedEnabled(datas.google_feed_enabled)
     }
+
+    useEffect(() => {
+        getProductDeltailData();
+    }, [])
+
 
     return (
         <div className="padding-left-293">
@@ -172,7 +149,7 @@ const NewProduct = (props) => {
                 </button>
             </Link>
             <div className={styles.part1}>
-                <h2 className={` ${styles.nb_theme_cosmic} ${styles.mb_5}`}>Add Product</h2>
+                <h2 className={` ${styles.nb_theme_cosmic} ${styles.mb_5}`}>{ProductTitle ? ProductTitle : 'Add Product'}</h2>
                 {/* Vendor */}
                 <div className={`${styles.form_group} ${styles.nb_theme_cosmic} ${styles.row_inline} ${styles.mb_4}`}>
                     <label className={` ${styles.col_md_2}`}>Vendor<span className={`${styles.text_danger}`}>*</span></label>
@@ -187,7 +164,7 @@ const NewProduct = (props) => {
                                 loadOptions={loadOptions}
                                 onChange={e => SetSelectedValue(e)}
                                 onInputChange={e => SetInputValue(e)}
-                                placeholder={'Type something...'}
+                                placeholder={inputValue}
                                 theme={(theme) => ({
                                     ...theme,
                                     borderRadius: 0,
@@ -206,7 +183,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Product Title<span className={`${styles.text_danger}`}>*</span></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="text" onChange={e => setProductTitle(e.target.value)} autoComplete='off' maxLength={255}></input>
+                            <input type="text" onChange={e => setProductTitle(e.target.value)} defaultValue={ProductTitle} autoComplete='off' maxLength={255}></input>
                             <div className={`${styles.small} ${styles.error_message}`}>This field is required</div>
                         </div>
                     </div>
@@ -216,7 +193,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Brand<span className={`${styles.text_danger}`}>*</span></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <select name="brand" id="brand" placeholder='Type Brand name to select' onChange={e => SetBrand(e.target.value)}>
+                            <select name="brand" id="brand" placeholder='Type Brand name to select' value={Brand} onChange={e => SetBrand(e.target.value)}>
                                 {listBrands && listBrands.length > 0 && listBrands.map((item, index) => {
                                     return (<option key={`brand-${index}`} value={item.id}>{item.name}</option>)
                                 })}
@@ -230,7 +207,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Condition<span className={`${styles.text_danger}`}>*</span></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <select name="Condition" id="Condition" onChange={e => setCondition(e.target.value)} defaultValue="">
+                            <select name="Condition" id="Condition" onChange={e => setCondition(e.target.value)} defaultValue={Condition}>
                                 <option value="292">Used</option>
                                 <option value="" style={{ display: 'none' }}></option>
                             </select>
@@ -243,11 +220,11 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>SKU</label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="text" onChange={e => setSKU(e.target.value)} autoComplete='off' defaultValue={initSku}></input>
+                            <input type="text" onChange={e => setSKU(e.target.value)} autoComplete='off' value={SKU}></input>
                         </div>
                     </div>
                 </div>
-                {/* Images chưa set */ console.log('noi này Ima', Ima[0] ? Ima[0] : '')}
+                {/* Images chưa set */}
                 <div className={`${styles.form_group} ${styles.nb_theme_cosmic} ${styles.row_inline} ${styles.mb_4}`}>
                     <label className={` ${styles.col_md_2}`}>Images<span className={`${styles.text_danger}`}>*</span></label>
                     <div className={` ${styles.col_md_4}`}>
@@ -265,6 +242,7 @@ const NewProduct = (props) => {
                             <Select name="category1" id="category1"
                                 mode="multiple"
                                 allowClear
+                                value={Category.map(item => '----'.concat(item.name))}
                                 style={{ width: '100%', }}
                                 placeholder="Type Categories name to select"
                                 onSelect={SetCategory}
@@ -309,7 +287,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Available for sale</label>
                     <label className={` ${styles.col_md_2}`} style={{ textAlign: 'left' }}>
                         <label className="switch" style={{ marginRight: '10px' }}>
-                            <input type="checkbox" onChange={e => setAvai4Sale(Number(e.target.checked))} />
+                            <input type="checkbox" defaultChecked={Avai4Sale} onChange={e => setAvai4Sale(Number(e.target.checked))} />
                             <span className="slider"></span>
                         </label>
                         <i className="fa-solid fa-circle-question"></i>
@@ -342,7 +320,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Price<span className={`${styles.text_danger}`}>*</span></label>
                     <label className={` ${styles.col_md_2}`} style={{ textAlign: 'left' }}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="number" placeholder='0.00' onChange={e => SetPrice(e.target.value)} autoComplete='off' maxLength={20}></input>
+                            <input type="number" placeholder='0.00' onChange={e => SetPrice(e.target.value)} value={Price} autoComplete='off' maxLength={20}></input>
                             <div className={`${styles.small} ${styles.error_message}`}>This field must be greater than 0</div>
                         </div>
                     </label>
@@ -356,7 +334,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Arrival date</label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <DatePicker defaultValue={moment(new Date().toLocaleDateString())} onChange={(value) => setArrivalDate(new Date(value._d).toLocaleString("fr-CA", { month: "numeric", day: "numeric", year: "numeric" }))}></DatePicker>
+                            <DatePicker value={moment(new Date(ArrivalDate * 1000).toLocaleDateString())} format={"YYYY-MM-DD"} onChange={(value) => setArrivalDate(new Date(value._d).toLocaleString("fr-CA", { month: "numeric", day: "numeric", year: "numeric" }))}></DatePicker>
                         </div>
                     </div>
                 </div>
@@ -365,7 +343,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Quantity in stock<span className={`${styles.text_danger}`}>*</span></label>
                     <label className={` ${styles.col_md_2}`} style={{ textAlign: 'left' }}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="number" placeholder='0.00' onChange={e => SetQuantity(e.target.value)} autoComplete='off' maxLength={20}></input>
+                            <input type="number" placeholder='0.00' onChange={e => SetQuantity(e.target.value)} value={Quantity} autoComplete='off' maxLength={20}></input>
                         </div>
                     </label>
                 </div>
@@ -378,7 +356,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Continental U.S.<span className={`${styles.text_danger}`}>*</span></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="number" placeholder='0.00' onChange={e => setShipping(prevState => {
+                            <input type="number" placeholder='0.00' defaultValue={Shipping.filter(item => item.id === '1')[0]?.price} onChange={e => setShipping(prevState => {
                                 const newState = prevState.map(obj => {
                                     if (obj.id === 1) {
                                         return { ...obj, price: `${e.target.value}` };
@@ -416,7 +394,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Open Graph meta tags</label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <select name="OgTtagsType" id="OgTtagsType" defaultValue={'Autogenerated'} onChange={e => setOgTtagsType(e.target.value)}>
+                            <select name="OgTtagsType" id="OgTtagsType" defaultValue={OgTtagsType} onChange={e => setOgTtagsType(e.target.value)}>
                                 <option value="0">Autogenerated</option>
                                 <option value="1">Custom</option>
                             </select>
@@ -428,7 +406,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>.</label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="text" onChange={e => SetOgTags(e.target.value)} autoComplete='off' maxLength={255}></input>
+                            <textarea onChange={e => SetOgTags(e.target.value)} value={OgTags} maxLength={255} style={{ color: 'black', fontSize: '14px', width: '100%', minHeight: '37px', paddingLeft: '5px' }}></textarea>
                         </div>
                     </div>
                 </div>
@@ -437,7 +415,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Meta description</label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <select name="MetaDescType" id="MetaDescType" defaultValue={'Autogenerated'} onChange={e => SetMetaDescType(e.target.value)}>
+                            <select name="MetaDescType" id="MetaDescType" defaultValue={MetaDescType} onChange={e => SetMetaDescType(e.target.value)}>
                                 <option value="A">Autogenerated</option>
                                 <option value="C">Custom</option>
                             </select>
@@ -446,10 +424,10 @@ const NewProduct = (props) => {
                 </div>
                 {/* MetaDescription */}
                 <div className={`${styles.form_group} ${styles.nb_theme_cosmic} ${styles.row_inline} ${styles.mb_4}`}>
-                    <label className={` ${styles.col_md_2}`}>.</label>
+                    <label className={` ${styles.col_md_2}`}></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="text" onChange={e => SetMetaDescription(e.target.value)} autoComplete='off' maxLength={255}></input>
+                            <textarea type="text" onChange={e => SetMetaDescription(e.target.value)} value={MetaDescription} maxLength={255} style={{ color: 'black', fontSize: '14px', width: '100%', minHeight: '37px', paddingLeft: '5px' }}></textarea>
                         </div>
                     </div>
                 </div>
@@ -458,7 +436,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Meta keywords</label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="text" onChange={e => SetMetaKeywords(e.target.value)} autoComplete='off' maxLength={255}></input>
+                            <input type="text" onChange={e => SetMetaKeywords(e.target.value)} defaultValue={MetaKeywords} maxLength={255}></input>
                         </div>
                     </div>
                 </div>
@@ -467,7 +445,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Product page title</label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="text" onChange={e => SetProductPageTitle(e.target.value)} autoComplete='off' maxLength={255}></input>
+                            <input type="text" onChange={e => SetProductPageTitle(e.target.value)} defaultValue={ProductPageTitle} maxLength={255}></input>
                             <div className={`${styles.small} ${styles.help_block}`}>Leave blank to use product name as Page Title.</div>
                         </div>
                     </div>
@@ -477,7 +455,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Add to Facebook <br />product feed</label>
                     <label className={` ${styles.col_md_2}`} style={{ textAlign: 'left' }}>
                         <label className="switch" style={{ marginRight: '10px' }}>
-                            <input type="checkbox" onChange={e => SetFacebookMarketingEnabled(Number(e.target.checked))} />
+                            <input type="checkbox" defaultChecked={FacebookMarketingEnabled} onChange={e => SetFacebookMarketingEnabled(Number(e.target.checked))} />
                             <span className="slider"></span>
                         </label>
                     </label>
@@ -487,7 +465,7 @@ const NewProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Add to Google <br />product feed</label>
                     <label className={` ${styles.col_md_2}`} style={{ textAlign: 'left' }}>
                         <label className="switch" style={{ marginRight: '10px' }}>
-                            <input type="checkbox" onChange={e => SetGoogleFeedEnabled(Number(e.target.checked))} />
+                            <input type="checkbox" defaultChecked={GoogleFeedEnabled} onChange={e => SetGoogleFeedEnabled(Number(e.target.checked))} />
                             <span className="slider"></span>
                         </label>
                     </label>
@@ -496,12 +474,11 @@ const NewProduct = (props) => {
             </div>
             <div className="sticky-panel">
                 <div className="sticky-panel-content">
-                    <li><button type="button" className="btn btn-warning" onClick={createProductData}
-                        disabled={dataDeleteLength === 0 ? true : false}>Create account</button></li>
+                    <li><button type="button" className="btn btn-warning" disabled={dataDeleteLength === 0 ? true : false}>Update Product</button></li>
                 </div>
             </div>
         </div >
     );
 }
 
-export default NewProduct
+export default DetailProduct

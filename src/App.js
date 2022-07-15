@@ -15,6 +15,7 @@ import Home from './components/Home';
 import UserList from './components/User Management/TableUser';
 import ProductList from './components/Product Management/TableProduct';
 import NewProduct from './components/Product Management/NewProduct';
+import DetailProduct from './components/Product Management/DetailProduct';
 
 
 function App(props) {
@@ -30,6 +31,13 @@ function App(props) {
         <Route path="/products/new-product">
           <NewProduct />
         </Route>
+        <Route
+          exact
+          path="/products/product-detail/:id"
+          render={({ match }) => (
+            <DetailProduct />
+          )}
+        />
         <Route path="/user/manage-user">
           <UserList />
         </Route>
