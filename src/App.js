@@ -13,9 +13,11 @@ import {
 } from "react-router-dom";
 import Home from './components/Home';
 import UserList from './components/User Management/TableUser';
+import NewUser from './components/User Management/NewUser';
 import ProductList from './components/Product Management/TableProduct';
 import NewProduct from './components/Product Management/NewProduct';
 import DetailProduct from './components/Product Management/DetailProduct';
+import DetailUser from './components/User Management/DetailUser';
 
 
 function App(props) {
@@ -41,6 +43,16 @@ function App(props) {
         <Route path="/user/manage-user">
           <UserList />
         </Route>
+        <Route path="/user/new-user">
+          <NewUser />
+        </Route>
+        <Route
+          exact
+          path="/user/user-detail/:id"
+          render={({ match }) => (
+            <DetailUser />
+          )}
+        />
       </Switch>
     </Router>
   );

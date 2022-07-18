@@ -53,21 +53,11 @@ const DetailProduct = (props) => {
     const [MetaDescription, SetMetaDescription] = useState("");
     const [MetaKeywords, SetMetaKeywords] = useState("");
     const [ProductPageTitle, SetProductPageTitle] = useState("");
-    const [FacebookMarketingEnabled, SetFacebookMarketingEnabled] = useState(0);
-    const [GoogleFeedEnabled, SetGoogleFeedEnabled] = useState(0);
+    const [FacebookMarketingEnabled, SetFacebookMarketingEnabled] = useState();
+    const [GoogleFeedEnabled, SetGoogleFeedEnabled] = useState();
 
     const [Quantity, SetQuantity] = useState(0);
     const dataDeleteLength = 1;
-
-    const dispatch = useDispatch()
-
-    // useEffect(() => {
-    //     dispatch(fetchAllVendors())
-    //     dispatch(fetchAllCatrgories())
-    //     dispatch(fetchAllBrands())
-    //     dispatch(fetchAllCountries())
-    // }, [])
-
 
     const listVendors = useSelector(vendorsListSelector);
     const listCategories = useSelector(categoriesListSelector);
@@ -132,14 +122,19 @@ const DetailProduct = (props) => {
         SetMetaDescription(datas.meta_description)
         SetMetaKeywords(datas.meta_keywords)
         SetProductPageTitle(datas.product_page_title)
-        SetFacebookMarketingEnabled(datas.facebook_marketing_enabled)
-        SetGoogleFeedEnabled(datas.google_feed_enabled)
+        SetFacebookMarketingEnabled(+datas.facebook_marketing_enabled)
+        SetGoogleFeedEnabled(+datas.google_feed_enabled)
     }
 
     useEffect(() => {
         getProductDeltailData();
     }, [])
 
+    const take_decimal_number = (num, n) => {
+        const index = String(num).indexOf('.', 0);
+        const result = String(num).slice(0, index + n + 1);
+        return result;
+    }
 
     return (
         <div className="padding-left-293">
@@ -320,7 +315,7 @@ const DetailProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Price<span className={`${styles.text_danger}`}>*</span></label>
                     <label className={` ${styles.col_md_2}`} style={{ textAlign: 'left' }}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="number" placeholder='0.00' onChange={e => SetPrice(e.target.value)} value={Price} autoComplete='off' maxLength={20}></input>
+                            <input type="number" placeholder='0.00' onChange={e => SetPrice(e.target.value)} value={take_decimal_number(Price, 2)} autoComplete='off' maxLength={20}></input>
                             <div className={`${styles.small} ${styles.error_message}`}>This field must be greater than 0</div>
                         </div>
                     </label>
@@ -356,7 +351,7 @@ const DetailProduct = (props) => {
                     <label className={` ${styles.col_md_2}`}>Continental U.S.<span className={`${styles.text_danger}`}>*</span></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
-                            <input type="number" placeholder='0.00' defaultValue={Shipping.filter(item => item.id === '1')[0]?.price} onChange={e => setShipping(prevState => {
+                            <input type="number" placeholder='0.00' defaultValue={take_decimal_number(Shipping.filter(item => item.id === '1')[0]?.price, 2)} onChange={e => setShipping(prevState => {
                                 const newState = prevState.map(obj => {
                                     if (obj.id === 1) {
                                         return { ...obj, price: `${e.target.value}` };
@@ -403,7 +398,7 @@ const DetailProduct = (props) => {
                 </div>
                 {/* og_tags */}
                 <div className={`${styles.form_group} ${styles.nb_theme_cosmic} ${styles.row_inline} ${styles.mb_4}`}>
-                    <label className={` ${styles.col_md_2}`}>.</label>
+                    <label className={` ${styles.col_md_2}`}></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
                             <textarea onChange={e => SetOgTags(e.target.value)} value={OgTags} maxLength={255} style={{ color: 'black', fontSize: '14px', width: '100%', minHeight: '37px', paddingLeft: '5px' }}></textarea>
@@ -454,8 +449,8 @@ const DetailProduct = (props) => {
                 <div className={`${styles.form_group} ${styles.nb_theme_cosmic} ${styles.row_inline} ${styles.mb_4}`}>
                     <label className={` ${styles.col_md_2}`}>Add to Facebook <br />product feed</label>
                     <label className={` ${styles.col_md_2}`} style={{ textAlign: 'left' }}>
-                        <label className="switch" style={{ marginRight: '10px' }}>
-                            <input type="checkbox" defaultChecked={FacebookMarketingEnabled} onChange={e => SetFacebookMarketingEnabled(Number(e.target.checked))} />
+                        <label className="switch" style={{ marginRight: '10px' }}>{console.log('FB', Boolean(GoogleFeedEnabled))}
+                            <input type="checkbox" checked={Boolean(FacebookMarketingEnabled)} onChange={e => SetFacebookMarketingEnabled(Number(e.target.checked))} />
                             <span className="slider"></span>
                         </label>
                     </label>
@@ -464,8 +459,8 @@ const DetailProduct = (props) => {
                 <div className={`${styles.form_group} ${styles.nb_theme_cosmic} ${styles.row_inline} ${styles.mb_4}`}>
                     <label className={` ${styles.col_md_2}`}>Add to Google <br />product feed</label>
                     <label className={` ${styles.col_md_2}`} style={{ textAlign: 'left' }}>
-                        <label className="switch" style={{ marginRight: '10px' }}>
-                            <input type="checkbox" defaultChecked={GoogleFeedEnabled} onChange={e => SetGoogleFeedEnabled(Number(e.target.checked))} />
+                        <label className="switch" style={{ marginRight: '10px' }}> {console.log('GG', Boolean(GoogleFeedEnabled))}
+                            <input type="checkbox" checked={Boolean(GoogleFeedEnabled)} onChange={e => SetGoogleFeedEnabled(Number(e.target.checked))} />
                             <span className="slider"></span>
                         </label>
                     </label>

@@ -1,4 +1,4 @@
-import { Link, NavLink } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import moment from "moment";
 import { useDispatch, useSelector } from 'react-redux';
@@ -51,7 +51,7 @@ const NewProduct = (props) => {
     const [FacebookMarketingEnabled, SetFacebookMarketingEnabled] = useState(0);
     const [GoogleFeedEnabled, SetGoogleFeedEnabled] = useState(0);
 
-
+    let history = useHistory()
     //imagesOrder
     //deleted_images
     const [Quantity, SetQuantity] = useState(0);
@@ -84,14 +84,12 @@ const NewProduct = (props) => {
     }
 
     const createProductData = async () => {
-        //const res = await axios.post
-
         let ImaNameList = Ima.map(a => a.name)
         console.log("ImaNameList", ImaNameList)
 
-        console.log(`{"vendor_id":"${Vendor}","name":"${ProductTitle}","brand_id":"${Brand}","condition_id":"${Condition}","categories":[${Category},"description":"${Description.slice(0, -1)}","enabled":${Avai4Sale},"memberships":${Array.from(new Set(Memberships))},"shipping_to_zones":[${JSON.stringify(Shipping)}],"tax_exempt":${TaxExempt},"price":"${Price}","sale_price_type":"$","arrival_date":"${ArrivalDate}","inventory_tracking":0,"quantity":"${Quantity}","sku":"${SKU}","participate_sale":${ParticipateSale},"sale_price":"${SalePrice}","og_tags_type":"${OgTtagsType}","og_tags":"${OgTags}","meta_desc_type":"${MetaDescType}","meta_description":"${MetaDescription}","meta_keywords":"${MetaKeywords}","product_page_title":"${ProductPageTitle}","facebook_marketing_enabled":${FacebookMarketingEnabled},"google_feed_enabled":${GoogleFeedEnabled}}`)
+        console.log(`{"vendor_id":"${Vendor}","name":"${ProductTitle}","brand_id":"${Brand}","condition_id":"${Condition}","categories":${Category},"description":"${Description.slice(0, -1)}","enabled":${Avai4Sale},"memberships":${Array.from(new Set(Memberships))},"shipping_to_zones":[${JSON.stringify(Shipping)}],"tax_exempt":${TaxExempt},"price":"${Price}","sale_price_type":"$","arrival_date":"${ArrivalDate}","inventory_tracking":0,"quantity":"${Quantity}","sku":"${SKU}","participate_sale":${ParticipateSale},"sale_price":"${SalePrice}","og_tags_type":"${OgTtagsType}","og_tags":"${OgTags}","meta_desc_type":"${MetaDescType}","meta_description":"${MetaDescription}","meta_keywords":"${MetaKeywords}","product_page_title":"${ProductPageTitle}","facebook_marketing_enabled":${FacebookMarketingEnabled},"google_feed_enabled":${GoogleFeedEnabled}}`)
         const form = new FormData();
-        form.append('productDetail', `{"vendor_id":"${Vendor}","name":"${ProductTitle}","brand_id":"${Brand}","condition_id":"${Condition}","categories":[${Category}],"description":"${Description.slice(0, -1)}","enabled":${Avai4Sale},"memberships":${Array.from(new Set(Memberships))},"shipping_to_zones":${JSON.stringify(Shipping)},"tax_exempt":${TaxExempt},"price":"${Price}","sale_price_type":"$","arrival_date":"${ArrivalDate}","inventory_tracking":0,"quantity":"${Quantity}","sku":"${SKU}","participate_sale":${ParticipateSale},"sale_price":"${SalePrice}","og_tags_type":"${OgTtagsType}","og_tags":"${OgTags}","meta_desc_type":"${MetaDescType}","meta_description":"${MetaDescription}","meta_keywords":"${MetaKeywords}","product_page_title":"${ProductPageTitle}","facebook_marketing_enabled":${FacebookMarketingEnabled},"google_feed_enabled":${GoogleFeedEnabled},"imagesOrder":[],"deleted_images":[]}`)
+        form.append('productDetail', `{"vendor_id":"${Vendor}","name":"${ProductTitle}","brand_id":"${Brand}","condition_id":"${Condition}","categories":[${Category}],"description":"${Description.slice(0, -1)}","enabled":${Avai4Sale},"memberships":[${Array.from(new Set(Memberships))}],"shipping_to_zones":${JSON.stringify(Shipping)},"tax_exempt":${TaxExempt},"price":"${Price}","sale_price_type":"$","arrival_date":"${ArrivalDate}","inventory_tracking":0,"quantity":"${Quantity}","sku":"${SKU}","participate_sale":${ParticipateSale},"sale_price":"${SalePrice}","og_tags_type":"${OgTtagsType}","og_tags":"${OgTags}","meta_desc_type":"${MetaDescType}","meta_description":"${MetaDescription}","meta_keywords":"${MetaKeywords}","product_page_title":"${ProductPageTitle}","facebook_marketing_enabled":${FacebookMarketingEnabled},"google_feed_enabled":${GoogleFeedEnabled},"imagesOrder":[],"deleted_images":[]}`)
 
         const res = await axios.post('https://api.gearfocus.div4.pgtest.co/apiAdmin/products/create', form,
             {
@@ -101,12 +99,8 @@ const NewProduct = (props) => {
             }
         )
 
-        // Handle result…
-        //console.log(res.data?.success);
-
         if (res.data.success === true) {
             let X = Ima[0]
-            //Ima && Ima.length > 0 && X.map((item, index) => 
             for (let i = 0; i < X.length; i++) {
                 const formIma = new FormData();
 
@@ -122,46 +116,8 @@ const NewProduct = (props) => {
                     }
                 )
             }
-            //)
+            history.push(`product-detail/${res.data.data}`)
         }
-
-        // const res = await axios.post("https://api.gearfocus.div4.pgtest.co/apiAdmin/products/create",
-        //     `
-        //     productDetail: {
-        //         "vendor_id":"${Vendor}",
-        //         "name":"${ProductTitle}",
-        //         "brand_id":"${Brand}",
-        //         "condition_id":"${Condition}",
-        //         "categories":[${Category}],
-        //         "description":"${Description}",
-        //         "enabled":${Avai4Sale},
-        //         "memberships":${Memberships},
-        //         "shipping_to_zones":${Shipping},
-        //         "tax_exempt":${TaxExempt},
-        //         "price":"${Price}",
-        //         "sale_price_type":"$",
-        //         "arrival_date":${ArrivalDate},
-        //         "inventory_tracking":0,"quantity":"${Quantity}",
-        //         "sku":"${SKU}",
-        //         "participate_sale":${ParticipateSale},
-        //         "sale_price":"${SalePrice}",
-        //         "og_tags_type":"${OgTtagsType}",
-        //         "og_tags":"${OgTags}",
-        //         "meta_desc_type":${MetaDescType},
-        //         "meta_description":${MetaDescription},
-        //         "meta_keywords":${MetaKeywords},
-        //         "product_page_title":${ProductPageTitle},
-        //         "facebook_marketing_enabled":${FacebookMarketingEnabled},
-        //         "google_feed_enabled":${GoogleFeedEnabled},
-        //         "imagesOrder":[],
-        //         "deleted_images":[]
-        //     }
-        //     `,
-        //     {
-        //         headers: {
-        //             Authorization: '9.5a8eefea2a1299f87e8e1a74994827840debf897a605c603444091fa519da275',
-        //         }
-        //     })
     }
 
     return (
@@ -425,7 +381,7 @@ const NewProduct = (props) => {
                 </div>
                 {/* og_tags */}
                 <div className={`${styles.form_group} ${styles.nb_theme_cosmic} ${styles.row_inline} ${styles.mb_4}`}>
-                    <label className={` ${styles.col_md_2}`}>.</label>
+                    <label className={` ${styles.col_md_2}`}></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
                             <input type="text" onChange={e => SetOgTags(e.target.value)} autoComplete='off' maxLength={255}></input>
@@ -446,7 +402,7 @@ const NewProduct = (props) => {
                 </div>
                 {/* MetaDescription */}
                 <div className={`${styles.form_group} ${styles.nb_theme_cosmic} ${styles.row_inline} ${styles.mb_4}`}>
-                    <label className={` ${styles.col_md_2}`}>.</label>
+                    <label className={` ${styles.col_md_2}`}></label>
                     <div className={` ${styles.col_md_4}`}>
                         <div className={` ${styles.table_value}`}>
                             <input type="text" onChange={e => SetMetaDescription(e.target.value)} autoComplete='off' maxLength={255}></input>

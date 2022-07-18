@@ -48,12 +48,6 @@ const ProductList = (props) => {
     const listCategories = useSelector(categoriesListSelector);
     const listVendors = useSelector(vendorsRemainingSelector);
 
-    // const handleSearchVendorChange = (e) => {
-    //     setByVendor(byVendor => ({ ...byVendor, 'name': e }));
-    //     console.log(byVendor)
-    //     dispatch(searchVendorChange(e))
-    // }
-
     const fetchProductData = async () => {
         const res = await axios.post("https://api.gearfocus.div4.pgtest.co/api/products/list",
             `{
@@ -145,9 +139,6 @@ const ProductList = (props) => {
             'byConditions': X
         }));
     }
-    // handleInputChange = (e, name ) => {
-    //     seSet
-    // }
 
     return (<>
         <div className="padding-left-293">
@@ -212,7 +203,8 @@ const ProductList = (props) => {
                             <input type="text" id="search-vendor" autoComplete='off'
                                 value={byVendor.name}
                                 onChange={e => { setByVendor({ ...byVendor, 'name': e.target.value, hide: false }); dispatch(searchVendorChange(e.target.value)) }}
-                                onBlur={e => { setByVendor({ ...byVendor, hide: true }) }}></input>
+                                onBlur={e => { setByVendor({ ...byVendor, hide: true }) }}>
+                            </input>
                             <ul className="search-vendor-value" style={{ ...byVendor.hide ? { display: 'none' } : { display: '' } }}>
                                 {listVendors && listVendors.length > 0 && listVendors.map((item, index) => {
                                     return (<li key={`vendor-${index}`} value={item.id}><a onClick={() => setByVendor(byVendor => ({ ...byVendor, 'id': item.id, 'name': item.name, hide: true }))}>{item.name}</a></li>)
